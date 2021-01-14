@@ -126,9 +126,10 @@ class Op(Node):
         self.args = tokens[0][0::2]
 
 
-class Not(Op):
+class Not(object):
     def __init__(self, tokens):
-        super(Not, self).__init__(tokens)
+        super(Not, self).__init__()
+        self.args = [tokens[0][1]]
 
     def compile(self):
         assert len(self.args) == 1
@@ -153,7 +154,7 @@ class Or(Op):
 
     def compile(self):
         compiled_args = [arg.compile() for arg in self.args]
-        return OrWrapperLayer(name='Or')(compiled_args)
+        return wrappers.OrWrapperLayer(name='Or')(compiled_args)
 
 
 class Iff(Op):
@@ -232,6 +233,12 @@ class FOLParser(object):
                 return ForAll(constraint, tokens)
             elif class_name == "EXISTS":
                 return Exists(constraint, tokens)
+            elif class_name == "OR":
+                return Or(tokens)
+            elif class_name == "AND":
+                return And(tokens)
+            elif class_name == "NOT":
+                return Not(tokens)
         return _create
 
     def parse(self, constraint):
@@ -257,7 +264,6 @@ class FOLParser(object):
         not_ = Keyword("not")
         and_ = Keyword("and")
         or_ = Keyword("or")
-        xor = Keyword("xor")
 
         atomic_forumulas = infixNotation(atomic_formula, [
             (not_, 1, opAssoc.RIGHT, self._createParseAction("NOT", constraint)),

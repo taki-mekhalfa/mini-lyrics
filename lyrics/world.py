@@ -7,9 +7,6 @@ class World(object):
         # Map from domain name to domain object
         self.domains = {}
 
-        # Map from function name to function object
-        self.functions = {}
-
         # Map from relation name to relation object
         self.predicates = {}
 
